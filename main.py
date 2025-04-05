@@ -171,12 +171,9 @@ test_call_prices = black_scholes_call('^XSP',600)
 file_path = "black_scholes_prices.csv"
 data_for_plot = pd.read_csv(file_path)
 
-# Filters out data points where Black Scholes price is too innacurate and implied volatility does not exist
-# filtered_data = data_for_plot[
-#     (abs((data_for_plot["Market Price"] - data_for_plot["Call Price (Hist Model)"]) / data_for_plot["Market Price"]) <= 0.1) &
-#     (pd.notna(data_for_plot["Implied Volatility"]))
-# ]
+#  Filters out data points where Black Scholes price is too innacurate and implied volatility does not exist
 filtered_data = data_for_plot[
+    (abs((data_for_plot["Market Price"] - data_for_plot["Call Price (Hist Model)"]) / data_for_plot["Market Price"]) <= 0.2) &
     (pd.notna(data_for_plot["Implied Volatility"]))
 ]
 
@@ -185,5 +182,4 @@ strikes = filtered_data["Strike"].to_numpy()
 days_to_maturity = filtered_data["Time to Maturity (Days)"].to_numpy()
 volatilities = filtered_data["Implied Volatility"].to_numpy()
 
-# plots volatility
 plot_volatility_3d(strikes, days_to_maturity, volatilities)
