@@ -1,5 +1,14 @@
 import math
 from scipy.stats import norm
+import scipy.stats as si
+
+def calculate_delta(S, K, T, r, sigma):
+    d1 = (math.log(S / K) + (r + 0.5 * sigma ** 2) * T) / (sigma * math.sqrt(T))
+    return si.norm.cdf(d1)
+
+def calculate_gamma(S, K, T, r, sigma):
+    d1 = (math.log(S / K) + (r + 0.5 * sigma ** 2) * T) / (sigma * math.sqrt(T))
+    return si.norm.pdf(d1) / (S * sigma * math.sqrt(T))
 
 def calculate_theta(S, K, T, r, sigma, option_type='call'):
     d1 = (math.log(S / K) + (r + 0.5 * sigma**2) * T) / (sigma * math.sqrt(T))

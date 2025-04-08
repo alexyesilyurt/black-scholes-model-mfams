@@ -10,6 +10,8 @@ from scipy.interpolate import griddata
 from greeks import *
 
 ticker = "^XSP"
+deltas = []
+gammas = []
 thetas = []
 vegas = []
 rhos = []
@@ -132,6 +134,8 @@ def black_scholes_call(ticker, limit=250):
 
         # Appending Greeks lists
         if iv is not None and iv < 1:
+                deltas.append(calculate_delta(S, K, T, r, iv))
+                gammas.append(calculate_gamma(S, K, T, r, iv))
                 thetas.append(calculate_theta(S, K, T, r, iv))
                 vegas.append(calculate_vega(S, K, T, r, iv))
                 rhos.append(calculate_rho(S, K, T, r, iv))
@@ -218,6 +222,8 @@ plot_volatility_3d(strikes_volplot, days_to_maturity_volplot, volatilities_volpl
 
 # Plot greeks
 
+# plot_greeks(strikes, deltas, 'Delta')
+# plot_greeks(strikes, gammas, 'Gamma')
 # plot_greeks(strikes, thetas, 'Theta')
 # plot_greeks(strikes, vegas, 'Vega')
 plot_greeks(strikes, rhos, 'Rho')
