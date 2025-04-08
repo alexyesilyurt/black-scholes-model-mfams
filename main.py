@@ -4,12 +4,16 @@ import scipy.stats as si
 from scipy.optimize import brentq
 import pandas as pd
 import matplotlib.pyplot as plt
-import mplfinance as mpf
-import plotly.graph_objects as go
 from datetime import datetime
 import matplotlib.pyplot as plt
-from mpl_toolkits.mplot3d import Axes3D
 from scipy.interpolate import griddata
+from greeks import *
+
+ticker = "^XSP"
+thetas = []
+vegas = []
+rhos = []
+strikes = []
 
 def fetch_stock_data(ticker):
     # Get stock data with yfinance
@@ -97,7 +101,7 @@ def black_scholes_call(ticker, limit=250):
 
     # Initialize an empty list to store all rows
     call_prices_list = []
-
+    
     # Get stock data
     S, r, sigma = fetch_stock_data(ticker)
 
@@ -125,6 +129,13 @@ def black_scholes_call(ticker, limit=250):
             "Ask": row['Ask'],
             "Implied Volatility": iv
         })
+
+        # Appending Greeks lists
+        if iv is not None and iv < 1:
+                thetas.append(calculate_theta(S, K, T, r, iv))
+                vegas.append(calculate_vega(S, K, T, r, iv))
+                rhos.append(calculate_rho(S, K, T, r, iv))
+                strikes.append(K)
 
     # Convert the list to a DataFrame **after** the loop finishes
     call_prices = pd.DataFrame(call_prices_list)
@@ -160,12 +171,33 @@ def plot_volatility_3d(strike_prices, days_to_maturity, volatilities):
     fig.colorbar(surf, ax=ax, shrink=0.5, aspect=5)
     plt.show()
 
+def plot_greeks(strikes, greek_list, label):
+    # Trim to 50 or fewer values safely
+    strikes = strikes[:30]
+    greek_list = greek_list[:30]
+
+    # Sort all by strike
+    # Sort by strike (optional but often helpful for cleaner plots)
+    strikes, greek_list = zip(*sorted(zip(strikes, greek_list)))
+
+    # Plot
+    plt.figure(figsize=(10, 6))
+    plt.plot(strikes, greek_list, marker='o', linestyle='-', color='blue')
+
+    # Add labels and title
+    plt.xlabel('Strike Price')
+    plt.ylabel(f'{label}')
+    plt.title(f'{label} vs. Strike Price of {ticker} (1 day to exp.)')
+    plt.grid(True)
+
+
+
 # Test this with a European stock that doesn't pay dividends
-test_call_prices = black_scholes_call('^XSP',600)
+test_call_prices = black_scholes_call(ticker, 350)
 
 
 
-### Plot ###
+### Plots ###
 
 # Load the CSV file
 file_path = "black_scholes_prices.csv"
@@ -178,8 +210,16 @@ filtered_data = data_for_plot[
 ]
 
 # Extract NumPy arrays
-strikes = filtered_data["Strike"].to_numpy()
-days_to_maturity = filtered_data["Time to Maturity (Days)"].to_numpy()
-volatilities = filtered_data["Implied Volatility"].to_numpy()
+strikes_volplot = filtered_data["Strike"].to_numpy()
+days_to_maturity_volplot = filtered_data["Time to Maturity (Days)"].to_numpy()
+volatilities_volplot = filtered_data["Implied Volatility"].to_numpy()
 
-plot_volatility_3d(strikes, days_to_maturity, volatilities)
+plot_volatility_3d(strikes_volplot, days_to_maturity_volplot, volatilities_volplot)
+
+# Plot greeks
+
+# plot_greeks(strikes, thetas, 'Theta')
+# plot_greeks(strikes, vegas, 'Vega')
+plot_greeks(strikes, rhos, 'Rho')
+plt.tight_layout()
+plt.show()
