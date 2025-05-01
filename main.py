@@ -220,12 +220,14 @@ volatilities_volplot = filtered_data["Implied Volatility"].to_numpy()
 
 plot_volatility_3d(strikes_volplot, days_to_maturity_volplot, volatilities_volplot)
 
+
 # Plot greeks
 
-# plot_greeks(strikes, deltas, 'Delta')
-# plot_greeks(strikes, gammas, 'Gamma')
-# plot_greeks(strikes, thetas, 'Theta')
-# plot_greeks(strikes, vegas, 'Vega')
+plot_greeks(strikes, deltas, 'Delta')
+plot_greeks(strikes, gammas, 'Gamma')
+plot_greeks(strikes, thetas, 'Theta')
+plot_greeks(strikes, vegas, 'Vega')
 plot_greeks(strikes, rhos, 'Rho')
+
 plt.tight_layout()
 plt.show()
